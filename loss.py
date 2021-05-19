@@ -1,4 +1,4 @@
-# credit goes to the user nabsabraham for this code as I did not create the code and simple used it
+# credit goes to the user nabsabraham for this code as I did not create the code and simply used it
 # here is the user https://github.com/nabsabraham
 
 from keras.losses import binary_crossentropy
