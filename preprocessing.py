@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 train_path = "C:\\Users\\me\\Documents\\Object-Detection\\cityscapes_data\\train"
 val_path = "C:\\Users\\me\\Documents\\Object-Detection\\cityscapes_data\\val"
 
-image_size = 256
+H = 256
+W = 256
+
 training_data = []
 validation_data = []
 
@@ -17,29 +19,44 @@ def reading_in_image(path, dataset):
         # reading in the image in by joining the path to get to the image
         image = cv2.imread(os.path.join(path, data))
         # we are resizing the image to the image_size that we set above
-        image = cv2.resize(image, (image_size, image_size))
+        image = cv2.resize(image, (H,W))
         # adding the images to the given dataset as we are later going to use these datasets in other parts of our project
+        #cv2.imshow("Test Image", image)
         dataset.append(image)
+        
+        average_blur = cv2.blur(image, (3,3))
+        dataset.append(average_blur)
        
         '''Image Augmentation'''
-
+        
+        # one of the problems with rotation is that if not done very precisely it can create rotated images that have black borders around them that can make the image smaller
         # we are rotating the initial images by 90 degrees counterclockwise and add that to do the dataset
+        
         rotated_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         dataset.append(rotated_image)
+        
         
         # we are rotating the initial images by 90 degrees clockwise and adding it to the dataset
         rotated_image_2 = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         dataset.append(rotated_image_2)
-
+        
+        # we are rotating the initial images by 90 degrees clockwise and adding it to the dataset
+        rotated_image_3 = cv2.rotate(image, cv2.ROTATE_180)
+        dataset.append(rotated_image_3)
+        
         # doing a horizontal flip on the original image and then adding it to the dataset
-        horizontally_flipped_image = cv2.flip(image, -1)
+        horizontally_flipped_image = cv2.flip(image, 1)
         dataset.append(horizontally_flipped_image)
 
         # doing a vertical flip on the original image and then adding it to the dataset
         vertically_flipped_image = cv2.flip(image, 0)
         dataset.append(vertically_flipped_image)
 
-        # now we are creating a maxtrics that will contain all of the nessesary values to create a image translation
+       # doing a horizontal flip and vertical flip on the original image and then adding it to the dataset
+        both_flipped_image = cv2.flip(image, -1)
+        dataset.append(horizontally_flipped_image)
+        
+        # now we are creating a matrics that will contain all of the nessesary values to create a image translation
         # the matrix that we are creating have have these values
         # here is an example:
         #  M = [1, 0, tx
@@ -87,6 +104,9 @@ def reading_in_image(path, dataset):
         augmented_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         augmented_image = cv2.rotate(image, cv2.ROTATE_180)
 
+        augmented_image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        augmented_image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+  
         augmented_image = cv2.flip(image, -1)
         augmented_image = cv2.flip(image, 0)
 
@@ -95,12 +115,26 @@ def reading_in_image(path, dataset):
                             ])
         augmented_image = cv2.warpAffine(image, Matrix, (image.shape[0], image.shape[1]))
 
+        Matrix = np.float32([[1,0,15],
+                            [0,1,-10]
+                            ])
+        augmented_image = cv2.warpAffine(image, Matrix, (image.shape[0], image.shape[1]))
+
+
         M = np.float32([[1, 0, 0], 
                         [0, -1, rows],
                         [0,  0, 1]])
         augmented_image =  cv2.warpPerspective(image, M, (cols, rows))
 
         dataset.append(augmented_image)
+
+        M = np.float32([[1, 0, 0], 
+                        [0, -1, rows],
+                        [0,  0, 1]])
+        augmented_image =  cv2.warpPerspective(image, M, (cols, rows))
+
+        dataset.append(augmented_image)
+       
 
 # applying the function on the training and testing sets that we have
 reading_in_image(train_path, training_data)
@@ -110,3 +144,12 @@ reading_in_image(val_path, validation_data)
 print(len(training_data))
 # length of the testing data
 print(len(validation_data))
+
+training_set = np.array(training_data)
+validation_set = np.array(validation_data)
+
+training_set = np.reshape(training_set, (len(training_set), H, W, 3))
+validation_set = np.reshape(validation_set, (len(validation_set), H, W, 3))
+
+print(training_set.shape)
+print(validation_set.shape)
