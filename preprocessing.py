@@ -11,24 +11,32 @@ val_path = "C:\\Users\\me\\Documents\\Object-Detection\\cityscapes_data\\val"
 H = 256
 W = 256
 
-training_data = []
 validation_data = []
+training_data = []
 
-def reading_in_image(path, dataset):
+X = []
+y = []
+
+
+def preprocessing_data(path, dataset):
+   # first we load in the data
     for data in os.listdir(path):
         # reading in the image in by joining the path to get to the image
         image = cv2.imread(os.path.join(path, data))
-        # we are resizing the image to the image_size that we set above
+    
+        '''Data Preprocessing'''
+            
+        # resizing the image
         image = cv2.resize(image, (H,W))
-        # adding the images to the given dataset as we are later going to use these datasets in other parts of our project
-        #cv2.imshow("Test Image", image)
-        dataset.append(image)
-        
-        average_blur = cv2.blur(image, (3,3))
-        dataset.append(average_blur)
-       
-        '''Image Augmentation'''
-        
+
+        # normalizing the image
+        norm_image = np.zeros(256,256)
+        image = cv2.normalize(image, norm_image, 0, 255, cv2.NORM_MINMAX)
+
+        # doing an average blur on the image
+        image = cv2.blur(image, (3,3))
+
+        '''Image Augmentation'''    
         # one of the problems with rotation is that if not done very precisely it can create rotated images that have black borders around them that can make the image smaller
         # we are rotating the initial images by 90 degrees counterclockwise and add that to do the dataset
         
@@ -133,22 +141,32 @@ def reading_in_image(path, dataset):
                         [0,  0, 1]])
         augmented_image =  cv2.warpPerspective(image, M, (cols, rows))
 
-        dataset.append(augmented_image)
-       
+        dataset.append(augmented_image) 
 
 # applying the function on the training and testing sets that we have
-reading_in_image(train_path, training_data)
-reading_in_image(val_path, validation_data)
+preprocessing_data(train_path, training_data)
+preprocessing_data(val_path, validation_data)
+
+for i in training_data:
+    image = image[:][:256]
+    mask = image[:][256:]
+                
+    # adding them to the feature set and the label set
+    y.append(mask)
+    X.append(image)
 
 # length of the training data
-print(len(training_data))
+print(len(X))
+print(len(y))
 # length of the testing data
 print(len(validation_data))
 
 training_set = np.array(training_data)
 validation_set = np.array(validation_data)
 
-training_set = np.reshape(training_set, (len(training_set), H, W, 3))
+
+X = np.reshape(training_set, (len(X), H, W, 3))
+y = np.reshape(training_set, (len(y), H, W, 3))
 validation_set = np.reshape(validation_set, (len(validation_set), H, W, 3))
 
 print(training_set.shape)
