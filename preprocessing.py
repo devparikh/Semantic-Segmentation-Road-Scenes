@@ -18,7 +18,7 @@ X = []
 y = []
 
 
-def preprocessing_data(path, dataset):
+def loading_data(path, dataset):
    # first we load in the data
     for data in os.listdir(path):
         # reading in the image in by joining the path to get to the image
@@ -29,13 +29,13 @@ def preprocessing_data(path, dataset):
         # resizing the image
         image = cv2.resize(image, (H,W))
 
-        # normalizing the image
-        norm_image = np.zeros(256,256)
-        image = cv2.normalize(image, norm_image, 0, 255, cv2.NORM_MINMAX)
-
         # doing an average blur on the image
         image = cv2.blur(image, (3,3))
 
+        dataset.append(image)
+
+def data_augmentation(dataset):
+    for image in dataset:
         '''Image Augmentation'''    
         # one of the problems with rotation is that if not done very precisely it can create rotated images that have black borders around them that can make the image smaller
         # we are rotating the initial images by 90 degrees counterclockwise and add that to do the dataset
@@ -143,13 +143,20 @@ def preprocessing_data(path, dataset):
 
         dataset.append(augmented_image) 
 
-# applying the function on the training and testing sets that we have
-preprocessing_data(train_path, training_data)
-preprocessing_data(val_path, validation_data)
+# running the function that loads in the dataset
+loading_data(train_path, training_data)
+loading_data(train_path, training_data)
+loading_data(val_path, validation_data)
+
+# running the function that does data augmentation
+# remember that we do not want to do data augmentation for the validation set
+data_augmentation(training_data)
+data_augmentation(training_data)
+
 
 for i in training_data:
-    image = image[:][:256]
-    mask = image[:][256:]
+    image = i[:][:256]
+    mask = i[:][256:]
                 
     # adding them to the feature set and the label set
     y.append(mask)
@@ -161,13 +168,14 @@ print(len(y))
 # length of the testing data
 print(len(validation_data))
 
-training_set = np.array(training_data)
+X = np.array(X)
+y = np.array(X)
 validation_set = np.array(validation_data)
 
-
-X = np.reshape(training_set, (len(X), H, W, 3))
-y = np.reshape(training_set, (len(y), H, W, 3))
+X = np.reshape(X, (len(X), H, W, 3))
+y = np.reshape(y, (len(y), H, W, 3))
 validation_set = np.reshape(validation_set, (len(validation_set), H, W, 3))
 
-print(training_set.shape)
+print(X.shape)
+print(y.shape)
 print(validation_set.shape)
