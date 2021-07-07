@@ -1,7 +1,6 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
-from imutils.video import VideoStream 
 import cv2
 from model import model
 import numpy as np
@@ -97,14 +96,5 @@ for data in os.listdir(saving_path):
     if key == ord("e"):
         break
 
-
-
-
     output_vid.release()
     output_vid.destroyAllWindows()
-
-
-
-
-
-
