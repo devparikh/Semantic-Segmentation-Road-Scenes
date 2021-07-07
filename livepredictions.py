@@ -44,7 +44,7 @@ saving_path = "C:\\Users\\me\\Documents\\Object-Detection\\splitvideo"
 video = cv2.VideoCapture(path)
 counter = 0
 
-while (cap.isOpened() and valid_input == True):
+while (video.isOpened() and valid_input == True):
     # ret returns a boolean depending on whether or not there was a return
     ret, frame = video.read()
 
