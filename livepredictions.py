@@ -1,6 +1,7 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
+from imutils.video import VideoStream 
 import cv2
 from model import model
 import numpy as np
@@ -44,7 +45,7 @@ saving_path = "C:\\Users\\me\\Documents\\Object-Detection\\splitvideo"
 video = cv2.VideoCapture(path)
 counter = 0
 
-while (video.isOpened() and valid_input == True):
+while (cap.isOpened() and valid_input == True):
     # ret returns a boolean depending on whether or not there was a return
     ret, frame = video.read()
 
@@ -71,8 +72,6 @@ for data in os.listdir(saving_path):
     # convert the image to an array
     img_array = np.array(image)
 
-    print(img_arrays.shape())
-
     # expanding the dimensions to add the 3 at the end of the shape so that it can be passed in the network
     #img_array = np.expand_dims(img_array, axis=0)
 
@@ -90,11 +89,10 @@ for data in os.listdir(saving_path):
 
     cv2.imshow("Input Video", frame)
     cv2.imshow("Output Video", output_frame)
+
     print("Press the letter 'e' on your keyword to close the window.")
-    key = cv2.waitKey(5)
 
-    if key == ord("e"):
+    if cv2.waitKey(25) & 0xFF == ord("e"):
         break
-
-    output_vid.release()
-    output_vid.destroyAllWindows()
+    
+output_frame.release()
